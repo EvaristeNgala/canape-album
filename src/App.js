@@ -13,6 +13,23 @@ function NavBar() {
   // Si on est sur /album-public, on ne montre pas Admin et Album
   if (location.pathname === "/album-public") return null;
 
+  // Générer automatiquement le lien vers AlbumPublic
+  const albumPublicUrl = `${window.location.origin}/album-public`;
+
+  // Style commun des liens
+  const linkStyle = {
+    textDecoration: "none",
+    color: "#333",
+    fontWeight: "600",
+    fontSize: "16px",
+    padding: "6px 12px",
+    borderRadius: "8px",
+    transition: "0.3s",
+  };
+
+  const handleMouseEnter = (e) => (e.target.style.background = "#e5e7eb");
+  const handleMouseLeave = (e) => (e.target.style.background = "transparent");
+
   return (
     <nav
       style={{
@@ -28,54 +45,42 @@ function NavBar() {
     >
       <Link
         to="/admin"
-        style={{
-          textDecoration: "none",
-          color: "#333",
-          fontWeight: "600",
-          fontSize: "16px",
-          padding: "6px 12px",
-          borderRadius: "8px",
-          transition: "0.3s",
-        }}
-        onMouseEnter={(e) => (e.target.style.background = "#e5e7eb")}
-        onMouseLeave={(e) => (e.target.style.background = "transparent")}
+        style={linkStyle}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         Admin
       </Link>
 
       <Link
         to="/album"
-        style={{
-          textDecoration: "none",
-          color: "#333",
-          fontWeight: "600",
-          fontSize: "16px",
-          padding: "6px 12px",
-          borderRadius: "8px",
-          transition: "0.3s",
-        }}
-        onMouseEnter={(e) => (e.target.style.background = "#e5e7eb")}
-        onMouseLeave={(e) => (e.target.style.background = "transparent")}
+        style={linkStyle}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         Album
       </Link>
 
       <Link
         to="/listeproduit"
-        style={{
-          textDecoration: "none",
-          color: "#333",
-          fontWeight: "600",
-          fontSize: "16px",
-          padding: "6px 12px",
-          borderRadius: "8px",
-          transition: "0.3s",
-        }}
-        onMouseEnter={(e) => (e.target.style.background = "#e5e7eb")}
-        onMouseLeave={(e) => (e.target.style.background = "transparent")}
+        style={linkStyle}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         Liste de produit
       </Link>
+
+      {/* Lien vers la version publique */}
+      <a
+        href={albumPublicUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={linkStyle}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        Album Public 🌍
+      </a>
     </nav>
   );
 }
@@ -83,7 +88,14 @@ function NavBar() {
 function App() {
   return (
     <Router>
-      <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", background: "#fafafa", minHeight: "100vh" }}>
+      <div
+        style={{
+          padding: "20px",
+          fontFamily: "Arial, sans-serif",
+          background: "#fafafa",
+          minHeight: "100vh",
+        }}
+      >
         <NavBar />
 
         <Routes>
@@ -93,7 +105,11 @@ function App() {
           <Route path="/album-public" element={<AlbumPublic />} /> {/* Page publique */}
           <Route
             path="/"
-            element={<h2 style={{ textAlign: "center", marginTop: "50px" }}>Bienvenue 👋 Choisis une page ci-dessus</h2>}
+            element={
+              <h2 style={{ textAlign: "center", marginTop: "50px" }}>
+                Bienvenue 👋 Choisis une page ci-dessus
+              </h2>
+            }
           />
         </Routes>
       </div>
