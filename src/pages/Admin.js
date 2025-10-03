@@ -1,7 +1,7 @@
 // src/pages/Admin.jsx
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, addDoc, getDocs, setDoc, doc, query, orderBy } from "firebase/firestore";
+import { collection, addDoc, getDocs, setDoc, doc } from "firebase/firestore";
 
 export default function Admin() {
   // --- Admin WhatsApp ---
@@ -9,11 +9,8 @@ export default function Admin() {
   const [editingWhatsapp, setEditingWhatsapp] = useState(false);
   const [tempWhatsapp, setTempWhatsapp] = useState("");
 
-  // --- AlbumPublic URL automatique ---
-  const albumPublicUrl =
-    window.location.hostname === "localhost"
-      ? "http://localhost:3000/album-public"
-      : "https://ton-site-vercel.vercel.app/album-public";
+  // --- AlbumPublic URL dynamique ---
+  const albumPublicUrl = `${window.location.origin}/album-public`;
 
   // --- Formulaire produit ---
   const [prix, setPrix] = useState("");
@@ -139,7 +136,7 @@ export default function Admin() {
     }
 
     await addDoc(collection(db, "produits"), {
-      reference: referenceProduit, // ✅ Référence automatique
+      reference: referenceProduit, // ✅ Référence auto
       categorie: selectedCategorie,
       sousCategorie: selectedSubCategorie,
       prix: parseFloat(prix),
