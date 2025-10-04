@@ -56,8 +56,8 @@ export default function AlbumPublic() {
   const styles = {
     container: { 
       maxWidth: "1000px", 
-      margin: "1px auto", 
-      padding: "5px", 
+      margin: "0 auto", 
+      padding: "8px", 
       fontFamily: "Arial, sans-serif", 
       color: "#333" 
     },
@@ -70,7 +70,8 @@ export default function AlbumPublic() {
     grid: { 
       display: "grid", 
       gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", 
-      gap: "16px" 
+      gap: "10px", 
+      justifyContent: "center",
     },
     card: { 
       display: "flex", 
@@ -80,12 +81,14 @@ export default function AlbumPublic() {
       background: "#fff", 
       boxShadow: "0 4px 10px rgba(0,0,0,0.08)", 
       cursor: "pointer", 
-      transition: "transform 0.2s" 
+      transition: "transform 0.2s",
+      maxWidth: "220px",
+      margin: "0 auto"
     },
-    image: { width: "100%", height: "150px", objectFit: "cover" },
-    infoRow: { display: "flex", justifyContent: "space-between", padding: "10px", alignItems: "center" },
-    label: { fontSize: "15px", fontWeight: "600", color: "#333" },
-    prix: { fontSize: "15px", fontWeight: "bold", color: "#007bff" },
+    image: { width: "100%", height: "140px", objectFit: "cover" },
+    infoRow: { display: "flex", justifyContent: "space-between", padding: "8px", alignItems: "center" },
+    label: { fontSize: "14px", fontWeight: "600", color: "#333" },
+    prix: { fontSize: "14px", fontWeight: "bold", color: "#007bff" },
     popup: { position: "fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,0.6)", display:"flex", justifyContent:"center", alignItems:"center", zIndex:1000 },
     popupContent: { background:"#fff", padding:"15px", borderRadius:"12px", maxWidth:"450px", width:"90%", maxHeight:"80vh", overflowY:"auto" },
     popupImage: { width:"100%", height:"200px", objectFit:"cover", borderRadius:"12px", marginBottom:"10px" },
@@ -101,13 +104,21 @@ export default function AlbumPublic() {
     if (popupProduit) setMainImageIndex(0);
   }, [popupProduit]);
 
-  // Style responsive pour 2 colonnes sur mobile
+  // ✅ Style responsive : 2 colonnes sur mobile + marges réduites
   useEffect(() => {
     const style = document.createElement("style");
     style.innerHTML = `
-      @media (max-width: 600px) {
+      @media (max-width: 700px) {
         .produits-grid {
           grid-template-columns: repeat(2, 1fr) !important;
+          gap: 8px !important;
+        }
+        .produits-grid .card {
+          max-width: 100% !important;
+        }
+        body {
+          margin: 0;
+          padding: 0;
         }
       }
     `;
@@ -147,13 +158,12 @@ export default function AlbumPublic() {
             </div>
           )}
 
-          {/* ✅ Suppression du bouton Retour */}
-          {/* Le bouton retour est bloqué volontairement */}
+          {/* ✅ Pas de bouton retour */}
 
           {/* Produits */}
           <div className="produits-grid" style={styles.grid}>
             {filteredProduits.map(p => (
-              <div key={p.id} style={styles.card} onClick={()=>setPopupProduit(p)}>
+              <div key={p.id} className="card" style={styles.card} onClick={()=>setPopupProduit(p)}>
                 <img src={p.images?.[0] || "https://via.placeholder.com/300x200"} alt={p.sousCategorie} style={styles.image} />
                 <div style={styles.infoRow}>
                   <span style={styles.label}>{p.sousCategorie || "Sans sous-catégorie"}</span>
