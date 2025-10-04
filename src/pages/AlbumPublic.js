@@ -60,32 +60,22 @@ export default function AlbumPublic() {
       fontFamily: "Arial, sans-serif", 
       color: "#333" 
     },
-    // ✅ Section sticky en haut
-    stickyHeader: { 
-      position: "sticky", 
-      top: 0, 
-      background: "#fff", 
-      zIndex: 999, 
-      paddingBottom: "6px", 
-      borderBottom: "1px solid #eee"
-    },
-    categoryList: { display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "6px", justifyContent:"center" },
-    categoryBtn: { padding: "8px 14px", borderRadius: "20px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", transition: "all 0.2s", fontSize: "14px" },
+    categoryList: { display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "10px" },
+    categoryBtn: { padding: "8px 14px", borderRadius: "10px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", transition: "all 0.2s", fontSize: "14px" },
     categoryBtnActive: { borderColor: "#007bff", fontWeight: "600", background: "#e7f0ff" },
-    subCategoryList: { display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "8px", justifyContent:"center" },
-    subCategoryBtn: { padding: "6px 12px", borderRadius: "16px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", fontSize: "13px", transition: "all 0.2s" },
+    subCategoryList: { display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "15px" },
+    subCategoryBtn: { padding: "6px 12px", borderRadius: "10px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", fontSize: "13px", transition: "all 0.2s" },
     subCategoryBtnActive: { borderColor: "#28a745", fontWeight: "600", background: "#e6ffed" },
     grid: { 
       display: "grid", 
       gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", 
       gap: "10px", 
       justifyContent: "center",
-      marginTop: "10px"
     },
     card: { 
       display: "flex", 
       flexDirection: "column", 
-      borderRadius: "10px 10px 0 0", 
+      borderRadius: "10px 10px 0 0 ", 
       overflow: "hidden", 
       background: "#fff", 
       boxShadow: "0 4px 10px rgba(0,0,0,0.08)", 
@@ -113,6 +103,7 @@ export default function AlbumPublic() {
     if (popupProduit) setMainImageIndex(0);
   }, [popupProduit]);
 
+  // ✅ Style responsive : 2 colonnes sur mobile + marges réduites
   useEffect(() => {
     const style = document.createElement("style");
     style.innerHTML = `
@@ -140,34 +131,35 @@ export default function AlbumPublic() {
         <p style={{textAlign:"center"}}>Chargement...</p>
       ) : (
         <>
-          {/* ✅ Section sticky : Catégories et sous-catégories */}
-          <div style={styles.stickyHeader}>
-            <div style={styles.categoryList}>
-              {categories.map((cat,i) => (
+          {/* Catégories */}
+          <div style={styles.categoryList}>
+            {categories.map((cat,i) => (
+              <div key={i} 
+                style={{...styles.categoryBtn, ...(selectedCategorie===cat?styles.categoryBtnActive:{})}}
+                onClick={()=>{setSelectedCategorie(cat); setSelectedSousCategorie(null)}}
+              >
+                {cat}
+              </div>
+            ))}
+          </div>
+
+          {/* Sous-catégories */}
+          {selectedCategorie && sousCategories.length > 0 && (
+            <div style={styles.subCategoryList}>
+              {sousCategories.map((sub,i) => (
                 <div key={i} 
-                  style={{...styles.categoryBtn, ...(selectedCategorie===cat?styles.categoryBtnActive:{})}}
-                  onClick={()=>{setSelectedCategorie(cat); setSelectedSousCategorie(null)}}
+                  style={{...styles.subCategoryBtn, ...(selectedSousCategorie===sub?styles.subCategoryBtnActive:{})}}
+                  onClick={()=>setSelectedSousCategorie(sub)}
                 >
-                  {cat}
+                  {sub}
                 </div>
               ))}
             </div>
+          )}
 
-            {selectedCategorie && sousCategories.length > 0 && (
-              <div style={styles.subCategoryList}>
-                {sousCategories.map((sub,i) => (
-                  <div key={i} 
-                    style={{...styles.subCategoryBtn, ...(selectedSousCategorie===sub?styles.subCategoryBtnActive:{})}}
-                    onClick={()=>setSelectedSousCategorie(sub)}
-                  >
-                    {sub}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* ✅ Pas de bouton retour */}
 
-          {/* ✅ Grille des produits */}
+          {/* Produits */}
           <div className="produits-grid" style={styles.grid}>
             {filteredProduits.map(p => (
               <div key={p.id} className="card" style={styles.card} onClick={()=>setPopupProduit(p)}>
@@ -180,7 +172,7 @@ export default function AlbumPublic() {
             ))}
           </div>
 
-          {/* ✅ Popup produit */}
+          {/* Popup produit */}
           {popupProduit && (
             <div style={styles.popup} onClick={()=>setPopupProduit(null)}>
               <div style={styles.popupContent} onClick={e=>e.stopPropagation()}>
