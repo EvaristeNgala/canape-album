@@ -56,7 +56,7 @@ export default function AlbumPublic() {
   const styles = {
     container: { 
       maxWidth: "1000px", 
-      padding: "2px", 
+      padding: "1px", 
       fontFamily: "Arial, sans-serif", 
       color: "#333" 
     },
@@ -86,7 +86,7 @@ export default function AlbumPublic() {
     },
     image: { width: "100%", height: "140px", objectFit: "cover" },
     infoRow: { display: "flex", justifyContent: "space-between", padding: "8px", alignItems: "center" },
-    label: { fontSize: "14px", fontWeight: "600", color: "#333" },
+    label: { fontSize: "12px", fontWeight: "600", color: "#4b4a4aff" },
     prix: { fontSize: "14px", fontWeight: "bold", color: "#007bff" },
     popup: { position: "fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,0.6)", display:"flex", justifyContent:"center", alignItems:"center", zIndex:1000 },
     popupContent: { background:"#fff", padding:"15px", borderRadius:"12px", maxWidth:"450px", width:"90%", maxHeight:"80vh", overflowY:"auto" },
