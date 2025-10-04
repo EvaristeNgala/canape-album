@@ -61,15 +61,15 @@ export default function AlbumPublic() {
       color: "#333" 
     },
     categoryList: { display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "10px" },
-    categoryBtn: { padding: "8px 14px", borderRadius: "10px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", transition: "all 0.2s", fontSize: "14px" },
+    categoryBtn: { padding: "8px 14px", borderRadius: "15px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", transition: "all 0.2s", fontSize: "14px" },
     categoryBtnActive: { borderColor: "#007bff", fontWeight: "600", background: "#e7f0ff" },
     subCategoryList: { display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "15px" },
-    subCategoryBtn: { padding: "6px 12px", borderRadius: "10px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", fontSize: "13px", transition: "all 0.2s" },
+    subCategoryBtn: { padding: "6px 12px", borderRadius: "15px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", fontSize: "13px", transition: "all 0.2s" },
     subCategoryBtnActive: { borderColor: "#28a745", fontWeight: "600", background: "#e6ffed" },
     grid: { 
       display: "grid", 
       gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", 
-      gap: "10px", 
+      gap: "5px", 
       justifyContent: "center",
     },
     card: { 
