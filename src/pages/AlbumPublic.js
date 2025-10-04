@@ -11,6 +11,7 @@ export default function AlbumPublic() {
   const [loading, setLoading] = useState(true);
   const [popupProduit, setPopupProduit] = useState(null);
   const [adminWhatsapp, setAdminWhatsapp] = useState("");
+  const [mainImageIndex, setMainImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchProduits = async () => {
@@ -53,20 +54,38 @@ export default function AlbumPublic() {
   };
 
   const styles = {
-    container: { maxWidth: "1000px", margin: "10px auto", padding: "10px", fontFamily: "Arial, sans-serif", color: "#333" },
+    container: { 
+      maxWidth: "1000px", 
+      margin: "1px auto", 
+      padding: "5px", 
+      fontFamily: "Arial, sans-serif", 
+      color: "#333" 
+    },
     categoryList: { display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "10px" },
     categoryBtn: { padding: "8px 14px", borderRadius: "20px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", transition: "all 0.2s", fontSize: "14px" },
     categoryBtnActive: { borderColor: "#007bff", fontWeight: "600", background: "#e7f0ff" },
     subCategoryList: { display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "15px" },
     subCategoryBtn: { padding: "6px 12px", borderRadius: "16px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", fontSize: "13px", transition: "all 0.2s" },
     subCategoryBtnActive: { borderColor: "#28a745", fontWeight: "600", background: "#e6ffed" },
-    grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" },
-    card: { display: "flex", flexDirection: "column", borderRadius: "12px", overflow: "hidden", background: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.08)", cursor: "pointer", transition: "transform 0.2s" },
+    grid: { 
+      display: "grid", 
+      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", 
+      gap: "16px" 
+    },
+    card: { 
+      display: "flex", 
+      flexDirection: "column", 
+      borderRadius: "12px", 
+      overflow: "hidden", 
+      background: "#fff", 
+      boxShadow: "0 4px 10px rgba(0,0,0,0.08)", 
+      cursor: "pointer", 
+      transition: "transform 0.2s" 
+    },
     image: { width: "100%", height: "150px", objectFit: "cover" },
     infoRow: { display: "flex", justifyContent: "space-between", padding: "10px", alignItems: "center" },
     label: { fontSize: "15px", fontWeight: "600", color: "#333" },
     prix: { fontSize: "15px", fontWeight: "bold", color: "#007bff" },
-    backBtn: { marginBottom: "10px", padding: "8px 14px", borderRadius: "8px", border: "1px solid #ccc", background: "#f8f8f8", cursor: "pointer" },
     popup: { position: "fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,0.6)", display:"flex", justifyContent:"center", alignItems:"center", zIndex:1000 },
     popupContent: { background:"#fff", padding:"15px", borderRadius:"12px", maxWidth:"450px", width:"90%", maxHeight:"80vh", overflowY:"auto" },
     popupImage: { width:"100%", height:"200px", objectFit:"cover", borderRadius:"12px", marginBottom:"10px" },
@@ -78,21 +97,37 @@ export default function AlbumPublic() {
     orderBtn: { background:"#25D366", color:"#fff" }
   };
 
-  const [mainImageIndex, setMainImageIndex] = useState(0);
-
   useEffect(() => {
     if (popupProduit) setMainImageIndex(0);
   }, [popupProduit]);
 
+  // Style responsive pour 2 colonnes sur mobile
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      @media (max-width: 600px) {
+        .produits-grid {
+          grid-template-columns: repeat(2, 1fr) !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   return (
     <div style={styles.container}>
-      {loading ? <p style={{textAlign:"center"}}>Chargement...</p> : (
+      {loading ? (
+        <p style={{textAlign:"center"}}>Chargement...</p>
+      ) : (
         <>
           {/* Catégories */}
           <div style={styles.categoryList}>
             {categories.map((cat,i) => (
-              <div key={i} style={{...styles.categoryBtn, ...(selectedCategorie===cat?styles.categoryBtnActive:{})}}
-                onClick={()=>{setSelectedCategorie(cat); setSelectedSousCategorie(null)}}>
+              <div key={i} 
+                style={{...styles.categoryBtn, ...(selectedCategorie===cat?styles.categoryBtnActive:{})}}
+                onClick={()=>{setSelectedCategorie(cat); setSelectedSousCategorie(null)}}
+              >
                 {cat}
               </div>
             ))}
@@ -102,21 +137,21 @@ export default function AlbumPublic() {
           {selectedCategorie && sousCategories.length > 0 && (
             <div style={styles.subCategoryList}>
               {sousCategories.map((sub,i) => (
-                <div key={i} style={{...styles.subCategoryBtn, ...(selectedSousCategorie===sub?styles.subCategoryBtnActive:{})}}
-                  onClick={()=>setSelectedSousCategorie(sub)}>
+                <div key={i} 
+                  style={{...styles.subCategoryBtn, ...(selectedSousCategorie===sub?styles.subCategoryBtnActive:{})}}
+                  onClick={()=>setSelectedSousCategorie(sub)}
+                >
                   {sub}
                 </div>
               ))}
             </div>
           )}
 
-          {/* Bouton retour */}
-          {selectedCategorie && (
-            <button style={styles.backBtn} onClick={()=>{setSelectedCategorie(null); setSelectedSousCategorie(null)}}>← Retour</button>
-          )}
+          {/* ✅ Suppression du bouton Retour */}
+          {/* Le bouton retour est bloqué volontairement */}
 
           {/* Produits */}
-          <div style={styles.grid}>
+          <div className="produits-grid" style={styles.grid}>
             {filteredProduits.map(p => (
               <div key={p.id} style={styles.card} onClick={()=>setPopupProduit(p)}>
                 <img src={p.images?.[0] || "https://via.placeholder.com/300x200"} alt={p.sousCategorie} style={styles.image} />
@@ -132,10 +167,7 @@ export default function AlbumPublic() {
           {popupProduit && (
             <div style={styles.popup} onClick={()=>setPopupProduit(null)}>
               <div style={styles.popupContent} onClick={e=>e.stopPropagation()}>
-                {/* Image principale */}
                 <img src={popupProduit.images[mainImageIndex]} alt="" style={styles.popupImage} />
-
-                {/* Slider */}
                 <div style={styles.popupSlider}>
                   {popupProduit.images?.map((img,i)=>(
                     <img key={i} src={img} alt=""
@@ -144,11 +176,8 @@ export default function AlbumPublic() {
                     />
                   ))}
                 </div>
-
                 <p>{popupProduit.description}</p>
                 <p style={{fontWeight:"bold"}}>Prix: ${popupProduit.prix}</p>
-
-                {/* Boutons */}
                 <div style={{marginTop:"10px", display:"flex", justifyContent:"flex-end"}}>
                   <button onClick={()=>setPopupProduit(null)} style={{...styles.popupButton, ...styles.closeBtn}}>Annuler</button>
                   <button onClick={()=>handleWhatsapp(popupProduit)} style={{...styles.popupButton, ...styles.orderBtn}}>Commander</button>

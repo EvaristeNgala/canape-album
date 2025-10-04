@@ -70,17 +70,7 @@ function NavBar() {
         Liste de produit
       </Link>
 
-      {/* Lien vers la version publique */}
-      <a
-        href={albumPublicUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={linkStyle}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        Album Public 🌍
-      </a>
+      
     </nav>
   );
 }
