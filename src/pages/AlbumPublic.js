@@ -57,7 +57,7 @@ export default function AlbumPublic() {
     container: { 
       maxWidth: "1000px", 
       margin: "0 auto", 
-      padding: "4px", 
+      padding: "2px", 
       fontFamily: "Arial, sans-serif", 
       color: "#333" 
     },
