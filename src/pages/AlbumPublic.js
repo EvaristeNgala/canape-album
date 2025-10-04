@@ -57,7 +57,7 @@ export default function AlbumPublic() {
     container: { 
       maxWidth: "1000px", 
       margin: "0 auto", 
-      padding: "8px", 
+      padding: "4px", 
       fontFamily: "Arial, sans-serif", 
       color: "#333" 
     },
@@ -76,7 +76,7 @@ export default function AlbumPublic() {
     card: { 
       display: "flex", 
       flexDirection: "column", 
-      borderRadius: "12px", 
+      borderRadius: "10px 10px 0 0 ", 
       overflow: "hidden", 
       background: "#fff", 
       boxShadow: "0 4px 10px rgba(0,0,0,0.08)", 
