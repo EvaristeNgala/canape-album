@@ -1,8 +1,8 @@
-// src/pages/ListeProduits.jsx
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, getDocs, deleteDoc, doc, query, orderBy } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import "./ListeProduits.css"; // <-- Import CSS
 
 export default function ListeProduits() {
   const [produits, setProduits] = useState([]);
@@ -16,8 +16,7 @@ export default function ListeProduits() {
       try {
         const q = query(collection(db, "produits"), orderBy("createdAt", "desc"));
         const snapshot = await getDocs(q);
-        const produitsData = [];
-        snapshot.forEach((doc) => produitsData.push({ id: doc.id, ...doc.data() }));
+        const produitsData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setProduits(produitsData);
         setLoading(false);
       } catch (err) {
@@ -39,25 +38,7 @@ export default function ListeProduits() {
     }
   };
 
-  const modifierProduit = (id) => {
-    navigate(`/edit-produit/${id}`);
-  };
-
-  const styles = {
-    container: { maxWidth: "1000px", margin: "20px auto", padding: "10px", fontFamily: "Arial, sans-serif" },
-    filters: { display: "flex", flexWrap: "wrap", justifyContent: "space-between", marginBottom: "15px", gap: "10px" },
-    input: { flex: 1, padding: "10px", border: "1px solid #ccc", borderRadius: "8px", minWidth: "150px" },
-    tableWrapper: { width: "100%", overflowX: "auto" },
-    header: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", fontWeight: "700", padding: "10px 0", borderBottom: "2px solid #ccc", textAlign: "center" },
-    row: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #eee", textAlign: "center" },
-    image: { width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px", margin: "auto" },
-    reference: { fontWeight: "600" },
-    prix: { fontWeight: "bold", color: "#007bff" },
-    btn: { border: "none", padding: "8px 12px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", transition: "all 0.3s ease" },
-    editBtn: { background: "#ffca28", color: "#333" },
-    deleteBtn: { background: "#e53935", color: "#fff" },
-    responsiveCard: { display: "none" },
-  };
+  const modifierProduit = (id) => navigate(`/edit-produit/${id}`);
 
   const produitsFiltres = produits.filter((p) => {
     const searchText = search.toLowerCase();
@@ -67,19 +48,28 @@ export default function ListeProduits() {
   });
 
   return (
-    <div style={styles.container}>
+    <div className="container">
       {loading ? (
         <p style={{ textAlign: "center" }}>Chargement...</p>
       ) : (
         <>
-          <div style={styles.filters}>
-            <input type="text" placeholder="🔍 Rechercher par référence..." value={search} onChange={(e) => setSearch(e.target.value)} style={styles.input} />
-            <input type="number" placeholder="💲 Prix max" value={maxPrix} onChange={(e) => setMaxPrix(e.target.value)} style={styles.input} />
+          <div className="filters">
+            <input
+              type="text"
+              placeholder="🔍 Rechercher par référence..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="💲 Prix max"
+              value={maxPrix}
+              onChange={(e) => setMaxPrix(e.target.value)}
+            />
           </div>
 
-          <div style={styles.tableWrapper}>
-            {/* Header */}
-            <div style={styles.header}>
+          <div className="tableWrapper">
+            <div className="header">
               <span>Référence</span>
               <span>Image</span>
               <span>Prix</span>
@@ -90,32 +80,21 @@ export default function ListeProduits() {
             {produitsFiltres.length > 0 ? (
               produitsFiltres.map((p) => (
                 <React.Fragment key={p.id}>
-                  {/* Version bureau */}
-                  <div style={styles.row}>
-                    <span style={styles.reference}>{p.reference || "N/A"}</span>
-                    <img src={p.images?.[0] || "https://via.placeholder.com/80"} alt={p.reference} style={styles.image} />
-                    <span style={styles.prix}>${p.prix}</span>
-                    <button style={{ ...styles.btn, ...styles.editBtn, marginRight: "5px" }} onClick={() => modifierProduit(p.id)}>✏️ Modifier</button>
-                    <button style={{ ...styles.btn, ...styles.deleteBtn }} onClick={() => supprimerProduit(p.id)}>🗑️ Supprimer</button>
+                  <div className="row">
+                    <span className="reference">{p.reference}</span>
+                    <img src={p.images?.[0] || "https://via.placeholder.com/80"} alt={p.reference} className="image" />
+                    <span className="prix">${p.prix}</span>
+                    <button className="btn editBtn" onClick={() => modifierProduit(p.id)}>✏️ Modifier</button>
+                    <button className="btn deleteBtn" onClick={() => supprimerProduit(p.id)}>🗑️ Supprimer</button>
                   </div>
 
-                  {/* Version mobile */}
                   <div className="responsiveCard">
                     <p><strong>Réf :</strong> {p.reference}</p>
-
-                    <div className="imagesContainer" style={{ display: "flex", overflowX: "auto", gap: "8px", paddingBottom: "5px" }}>
-                      {p.images?.length > 0 ? (
-                        p.images.map((img, idx) => <img key={idx} src={img} alt={`${p.reference}-${idx}`} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px", flexShrink: 0 }} />)
-                      ) : (
-                        <img src="https://via.placeholder.com/80" alt="placeholder" style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px" }} />
-                      )}
-                    </div>
-
+                    <img src={p.images?.[0] || "https://via.placeholder.com/80"} alt={p.reference} />
                     <p><strong>Prix :</strong> ${p.prix}</p>
-
                     <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "8px" }}>
-                      <button style={{ ...styles.btn, ...styles.editBtn }} onClick={() => modifierProduit(p.id)}>✏️ Modifier</button>
-                      <button style={{ ...styles.btn, ...styles.deleteBtn }} onClick={() => supprimerProduit(p.id)}>🗑️ Supprimer</button>
+                      <button className="btn editBtn" onClick={() => modifierProduit(p.id)}>✏️ Modifier</button>
+                      <button className="btn deleteBtn" onClick={() => supprimerProduit(p.id)}>🗑️ Supprimer</button>
                     </div>
                   </div>
                 </React.Fragment>
@@ -126,13 +105,6 @@ export default function ListeProduits() {
           </div>
         </>
       )}
-      {/* Styles media query */}
-      <style>{`
-        @media (max-width: 700px) {
-          .header, .row { display: none; }
-          .responsiveCard { display: block; background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        }
-      `}</style>
     </div>
   );
 }
