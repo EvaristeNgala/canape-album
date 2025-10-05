@@ -175,8 +175,8 @@ export default function EditProduit() {
     },
     removeButton: {
       position: "absolute",
-      top: "-8px",
-      right: "-8px",
+      top: "5px",
+      right: "5px",
       background: "#d9534f",
       border: "none",
       borderRadius: "50%",
