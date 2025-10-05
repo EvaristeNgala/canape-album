@@ -63,7 +63,7 @@ export default function AlbumPublic() {
     const css = `
       /* AlbumPublic custom styles */
       .ap-root { max-width:1000px; margin: 0 auto; padding: -16px; box-sizing: border-box; font-family: Arial, sans-serif; color:#333;}
-      .ap-categories-wrap { position: sticky; top: 0; left: 0; right: 0; z-index:1200; padding:10px 8px; display:flex; gap:8px; align-items:center; overflow-x:auto;  }
+      .ap-categories-wrap { position: sticky; top: 0; left: 0; right: 0; background:#fff; z-index:1200; padding:10px 8px; display:flex; gap:8px; align-items:center; overflow-x:auto;  }
       .ap-cat-btn { padding:8px 14px; border-radius:14px; border:1px solid #d1d5db; background:#fff; cursor:pointer; font-size:14px; white-space:nowrap; }
       .ap-cat-btn.active { background:#e7f0ff; border-color:#007bff; font-weight:600; }
       .ap-sub-wrap { margin: 8px 0 0 0; padding: 8px; overflow-x:auto; display:flex; gap:8px; align-items:center; border-bottom: 1px solid rgba(0,0,0,0.04); }
