@@ -13,7 +13,7 @@ export default function EditProduit() {
     categorie: "",
     sousCategorie: "",
     description: "",
-    images: ["", "", ""], // 3 images max
+    images: ["", "", ""],
   });
   const [loading, setLoading] = useState(true);
   const [newImages, setNewImages] = useState([null, null, null]);
@@ -48,6 +48,15 @@ export default function EditProduit() {
     const imgs = [...newImages];
     imgs[index] = e.target.files[0];
     setNewImages(imgs);
+  };
+
+  const removeImage = (index) => {
+    const imgs = [...produit.images];
+    imgs[index] = "";
+    setProduit({ ...produit, images: imgs });
+    const newImgs = [...newImages];
+    newImgs[index] = null;
+    setNewImages(newImgs);
   };
 
   const uploadImage = async (file) => {
@@ -88,7 +97,6 @@ export default function EditProduit() {
     try {
       const docRef = doc(db, "produits", id);
       await updateDoc(docRef, {
-        reference: produit.reference,
         prix: Number(produit.prix),
         categorie: produit.categorie,
         sousCategorie: produit.sousCategorie,
@@ -108,11 +116,13 @@ export default function EditProduit() {
 
   const styles = {
     container: { maxWidth: "600px", margin: "30px auto", padding: "20px", border: "1px solid #ddd", borderRadius: "8px" },
-    input: { width: "95%", padding: "10px", margin: "10px 0", border: "1px solid #ccc", borderRadius: "6px" },
+    input: { width: "100%", padding: "10px", margin: "10px 0", border: "1px solid #ccc", borderRadius: "6px" },
     textarea: { width: "100%", padding: "10px", margin: "10px 0", border: "1px solid #ccc", borderRadius: "6px", minHeight: "80px" },
-    button: { padding: "12px", borderRadius: "8px", background: "#007bff", color: "#fff", border: "none", cursor: "pointer", fontWeight: "600" },
-    imagePreview: { width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px", marginRight: "10px" },
+    button: { padding: "12px", borderRadius: "8px", background: "#007bff", color: "#fff", border: "none", cursor: "pointer", fontWeight: "600", marginTop: "10px" },
+    imagePreview: { width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" },
     imagesContainer: { display: "flex", gap: "10px", marginBottom: "10px" },
+    imageWrapper: { position: "relative" },
+    removeButton: { position: "absolute", top: "-8px", right: "-8px", background: "#d9534f", border: "none", borderRadius: "50%", color: "#fff", width: "24px", height: "24px", cursor: "pointer" },
     title: { textAlign: "center", marginBottom: "20px", fontSize: "20px", fontWeight: "700" },
   };
 
@@ -120,13 +130,13 @@ export default function EditProduit() {
     <div style={styles.container}>
       <h2 style={styles.title}>Modifier le produit</h2>
       <form onSubmit={handleSubmit}>
+        {/* Référence (non modifiable) */}
         <input
           type="text"
           placeholder="Référence"
           value={produit.reference}
-          onChange={(e) => setProduit({ ...produit, reference: e.target.value })}
-          style={styles.input}
-          required
+          style={{ ...styles.input, backgroundColor: "#f0f0f0", cursor: "not-allowed" }}
+          disabled
         />
         <input
           type="number"
@@ -157,8 +167,18 @@ export default function EditProduit() {
           style={styles.textarea}
         />
 
+        {/* Images */}
         <div style={styles.imagesContainer}>
-          {produit.images.map((img, i) => img && <img key={i} src={img} alt={`img${i}`} style={styles.imagePreview} />)}
+          {produit.images.map((img, i) =>
+            img ? (
+              <div key={i} style={styles.imageWrapper}>
+                <img src={img} alt={`img${i}`} style={styles.imagePreview} />
+                <button type="button" style={styles.removeButton} onClick={() => removeImage(i)}>
+                  ×
+                </button>
+              </div>
+            ) : null
+          )}
         </div>
 
         {[0, 1, 2].map((i) => (
