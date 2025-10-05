@@ -93,7 +93,7 @@ export default function ListeProduits() {
     prix: { fontWeight: "bold", color: "#007bff" },
     btn: {
       border: "none",
-      padding: "8px 12px",
+      padding: "5px 8px",
       borderRadius: "8px",
       cursor: "pointer",
       fontWeight: "600",
@@ -275,12 +275,8 @@ export default function ListeProduits() {
       {selectedProduit && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent}>
-            <img
-              src={selectedProduit.images?.[0] || "https://via.placeholder.com/150"}
-              alt={selectedProduit.reference}
-              style={styles.modalImage}
-            />
-            <h3 style={{ marginBottom: "10px", color: "#007bff" }}>📦 Informations du produit</h3>
+            
+            <h3 style={{ marginBottom: "10px", color: "#007bff" }}>Informations du produit</h3>
             <p style={styles.infoText}>
               <span style={styles.strong}>Référence :</span> {selectedProduit.reference}
             </p>
