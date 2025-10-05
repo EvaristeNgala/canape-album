@@ -61,10 +61,34 @@ export default function AlbumPublic() {
       fontFamily: "Arial, sans-serif", 
       color: "#333" 
     },
-    categoryBtn: { padding: "8px 14px", borderRadius: "15px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", transition: "all 0.2s", fontSize: "14px" },
-    categoryBtnActive: { borderColor: "#007bff", fontWeight: "600", background: "#e7f0ff" },
-    subCategoryBtn: { padding: "6px 12px", borderRadius: "15px", border: "1px solid #ccc", cursor: "pointer", background: "#fff", fontSize: "13px", transition: "all 0.2s" },
-    subCategoryBtnActive: { borderColor: "#28a745", fontWeight: "600", background: "#e6ffed" },
+    categoryBtn: { 
+      padding: "8px 14px", 
+      borderRadius: "15px", 
+      border: "1px solid #ccc", 
+      cursor: "pointer", 
+      background: "#fff", 
+      transition: "all 0.2s", 
+      fontSize: "14px" 
+    },
+    categoryBtnActive: { 
+      borderColor: "#007bff", 
+      fontWeight: "600", 
+      background: "#e7f0ff" 
+    },
+    subCategoryBtn: { 
+      padding: "6px 12px", 
+      borderRadius: "15px", 
+      border: "1px solid #ccc", 
+      cursor: "pointer", 
+      background: "#fff", 
+      fontSize: "13px", 
+      transition: "all 0.2s" 
+    },
+    subCategoryBtnActive: { 
+      borderColor: "#28a745", 
+      fontWeight: "600", 
+      background: "#e6ffed" 
+    },
     grid: { 
       display: "grid", 
       gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", 
@@ -96,7 +120,7 @@ export default function AlbumPublic() {
     popupSliderImageActive: { border:"2px solid #007bff" },
     popupButton: { padding:"8px 12px", borderRadius:"6px", border:"none", cursor:"pointer", marginRight:"8px", fontWeight:"600" },
     closeBtn: { background:"#ccc", color:"#333" },
-    orderBtn: { background:"#25D366", color:"#fff" }
+    orderBtn: { background:"#25D366", color:"#fff" },
   };
 
   useEffect(() => {
@@ -127,26 +151,47 @@ export default function AlbumPublic() {
   return (
     <div style={styles.container}>
       {loading ? (
-        <p style={{textAlign:"center"}}>Chargement...</p>
+        <p style={{ textAlign: "center" }}>Chargement...</p>
       ) : (
         <>
           {/* Bloc catégories fixe */}
-          <div style={{
-            position: "sticky",
-            top: 0,
-            left: 0,
-            right: 0,
-            background: "#fff",
-            zIndex: 100,
-            padding: "8px 10px",
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "10px",
-          }}>
-            {categories.map((cat,i) => (
-              <div key={i} 
-                style={{...styles.categoryBtn, ...(selectedCategorie===cat?styles.categoryBtnActive:{})}}
-                onClick={() => setSelectedCategorie(prev => prev === cat ? null : cat)}
+          <div
+            style={{
+              position: "sticky",
+              top: 0,
+              left: 0,
+              right: 0,
+              background: "#fff",
+              zIndex: 100,
+              padding: "8px 10px",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "10px",
+              alignItems: "center",
+            }}
+          >
+            {/* Bouton pour toutes les catégories */}
+            <div
+              style={{
+                ...styles.categoryBtn,
+                ...(selectedCategorie === null ? styles.categoryBtnActive : {}),
+              }}
+              onClick={() => {
+                setSelectedCategorie(null);
+                setSelectedSousCategorie(null);
+              }}
+            >
+              🏷️ Toutes les catégories
+            </div>
+
+            {categories.map((cat, i) => (
+              <div
+                key={i}
+                style={{
+                  ...styles.categoryBtn,
+                  ...(selectedCategorie === cat ? styles.categoryBtnActive : {}),
+                }}
+                onClick={() => setSelectedCategorie(prev => (prev === cat ? null : cat))}
               >
                 {cat}
               </div>
@@ -155,18 +200,28 @@ export default function AlbumPublic() {
 
           {/* Sous-catégories scrollable */}
           {selectedCategorie && sousCategories.length > 0 && (
-            <div style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "8px",
-              margin: "10px 0",
-              padding: "0 10px",
-              overflowX: "auto",
-            }}>
-              {sousCategories.map((sub,i) => (
-                <div key={i} 
-                  style={{...styles.subCategoryBtn, ...(selectedSousCategorie===sub?styles.subCategoryBtnActive:{})}}
-                  onClick={()=>setSelectedSousCategorie(prev => prev === sub ? null : sub)}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                margin: "10px 0",
+                padding: "0 10px",
+                overflowX: "auto",
+              }}
+            >
+              {sousCategories.map((sub, i) => (
+                <div
+                  key={i}
+                  style={{
+                    ...styles.subCategoryBtn,
+                    ...(selectedSousCategorie === sub
+                      ? styles.subCategoryBtnActive
+                      : {}),
+                  }}
+                  onClick={() =>
+                    setSelectedSousCategorie(prev => (prev === sub ? null : sub))
+                  }
                 >
                   {sub}
                 </div>
@@ -176,11 +231,22 @@ export default function AlbumPublic() {
 
           {/* Produits */}
           <div className="produits-grid" style={styles.grid}>
-            {filteredProduits.map(p => (
-              <div key={p.id} className="card" style={styles.card} onClick={()=>setPopupProduit(p)}>
-                <img src={p.images?.[0] || "https://via.placeholder.com/300x200"} alt={p.sousCategorie} style={styles.image} />
+            {filteredProduits.map((p) => (
+              <div
+                key={p.id}
+                className="card"
+                style={styles.card}
+                onClick={() => setPopupProduit(p)}
+              >
+                <img
+                  src={p.images?.[0] || "https://via.placeholder.com/300x200"}
+                  alt={p.sousCategorie}
+                  style={styles.image}
+                />
                 <div style={styles.infoRow}>
-                  <span style={styles.label}>{p.sousCategorie || "Sans sous-catégorie"}</span>
+                  <span style={styles.label}>
+                    {p.sousCategorie || "Sans sous-catégorie"}
+                  </span>
                   <span style={styles.prix}>${p.prix}</span>
                 </div>
               </div>
@@ -189,22 +255,53 @@ export default function AlbumPublic() {
 
           {/* Popup produit */}
           {popupProduit && (
-            <div style={styles.popup} onClick={()=>setPopupProduit(null)}>
-              <div style={styles.popupContent} onClick={e=>e.stopPropagation()}>
-                <img src={popupProduit.images[mainImageIndex]} alt="" style={styles.popupImage} />
+            <div style={styles.popup} onClick={() => setPopupProduit(null)}>
+              <div
+                style={styles.popupContent}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={popupProduit.images[mainImageIndex]}
+                  alt=""
+                  style={styles.popupImage}
+                />
                 <div style={styles.popupSlider}>
-                  {popupProduit.images?.map((img,i)=>(
-                    <img key={i} src={img} alt=""
-                      style={{...styles.popupSliderImage, ...(i===mainImageIndex?styles.popupSliderImageActive:{})}}
-                      onClick={()=>setMainImageIndex(i)}
+                  {popupProduit.images?.map((img, i) => (
+                    <img
+                      key={i}
+                      src={img}
+                      alt=""
+                      style={{
+                        ...styles.popupSliderImage,
+                        ...(i === mainImageIndex
+                          ? styles.popupSliderImageActive
+                          : {}),
+                      }}
+                      onClick={() => setMainImageIndex(i)}
                     />
                   ))}
                 </div>
                 <p>{popupProduit.description}</p>
-                <p style={{fontWeight:"bold"}}>Prix: ${popupProduit.prix}</p>
-                <div style={{marginTop:"10px", display:"flex", justifyContent:"flex-end"}}>
-                  <button onClick={()=>setPopupProduit(null)} style={{...styles.popupButton, ...styles.closeBtn}}>Annuler</button>
-                  <button onClick={()=>handleWhatsapp(popupProduit)} style={{...styles.popupButton, ...styles.orderBtn}}>Commander</button>
+                <p style={{ fontWeight: "bold" }}>Prix: ${popupProduit.prix}</p>
+                <div
+                  style={{
+                    marginTop: "10px",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <button
+                    onClick={() => setPopupProduit(null)}
+                    style={{ ...styles.popupButton, ...styles.closeBtn }}
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={() => handleWhatsapp(popupProduit)}
+                    style={{ ...styles.popupButton, ...styles.orderBtn }}
+                  >
+                    Commander
+                  </button>
                 </div>
               </div>
             </div>
