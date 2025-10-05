@@ -2,12 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, getDocs, deleteDoc, doc, query, orderBy } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 export default function ListeProduits() {
   const [produits, setProduits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [maxPrix, setMaxPrix] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProduits = async () => {
@@ -40,17 +42,37 @@ export default function ListeProduits() {
     }
   };
 
-  // Modifier un produit (rediriger vers une page admin par exemple)
+  // Rediriger vers la page de modification
   const modifierProduit = (id) => {
-    alert(`🔧 Fonction à venir : Modifier le produit avec ID ${id}`);
-    // Tu pourras plus tard rediriger vers une page /edit/:id
+    navigate(`/edit-produit/${id}`);
   };
 
   // Styles
   const styles = {
-    container: { maxWidth: "950px", margin: "20px auto", padding: "10px", fontFamily: "Arial, sans-serif" },
-    filters: { display: "flex", justifyContent: "space-between", marginBottom: "15px", gap: "10px" },
-    input: { flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "6px" },
+    container: {
+      maxWidth: "1000px",
+      margin: "20px auto",
+      padding: "10px",
+      fontFamily: "Arial, sans-serif",
+    },
+    filters: {
+      display: "flex",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+      marginBottom: "15px",
+      gap: "10px",
+    },
+    input: {
+      flex: 1,
+      padding: "10px",
+      border: "1px solid #ccc",
+      borderRadius: "8px",
+      minWidth: "150px",
+    },
+    tableWrapper: {
+      width: "100%",
+      overflowX: "auto",
+    },
     header: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
@@ -67,19 +89,48 @@ export default function ListeProduits() {
       borderBottom: "1px solid #eee",
       textAlign: "center",
     },
-    image: { width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px", margin: "auto" },
+    image: {
+      width: "80px",
+      height: "80px",
+      objectFit: "cover",
+      borderRadius: "8px",
+      margin: "auto",
+    },
     reference: { fontWeight: "600" },
     prix: { fontWeight: "bold", color: "#007bff" },
     btn: {
       border: "none",
-      padding: "6px 10px",
-      borderRadius: "6px",
+      padding: "8px 12px",
+      borderRadius: "8px",
       cursor: "pointer",
       fontWeight: "600",
-      transition: "0.3s",
+      transition: "all 0.3s ease",
     },
-    editBtn: { background: "#f0ad4e", color: "white" },
-    deleteBtn: { background: "#d9534f", color: "white" },
+    editBtn: {
+      background: "#ffca28",
+      color: "#333",
+    },
+    deleteBtn: {
+      background: "#e53935",
+      color: "#fff",
+    },
+    responsiveCard: {
+      display: "none",
+    },
+    // Responsive
+    "@media (max-width: 700px)": {
+      header: { display: "none" },
+      row: { display: "none" },
+      responsiveCard: {
+        display: "block",
+        background: "#fff",
+        border: "1px solid #ddd",
+        borderRadius: "10px",
+        padding: "10px",
+        marginBottom: "10px",
+        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+      },
+    },
   };
 
   // Filtrage : uniquement sur la référence
@@ -114,47 +165,88 @@ export default function ListeProduits() {
             />
           </div>
 
-          {/* Header */}
-          <div style={styles.header}>
-            <span>Référence</span>
-            <span>Image</span>
-            <span>Prix</span>
-            <span>Modifier</span>
-            <span>Supprimer</span>
+          <div style={styles.tableWrapper}>
+            {/* Header */}
+            <div style={styles.header}>
+              <span>Référence</span>
+              <span>Image</span>
+              <span>Prix</span>
+              <span>Modifier</span>
+              <span>Supprimer</span>
+            </div>
+
+            {/* Produits */}
+            {produitsFiltres.length > 0 ? (
+              produitsFiltres.map((p) => (
+                <React.Fragment key={p.id}>
+                  {/* Version bureau */}
+                  <div style={styles.row}>
+                    <span style={styles.reference}>{p.reference || "N/A"}</span>
+                    <img
+                      src={p.images?.[0] || "https://via.placeholder.com/80"}
+                      alt={p.reference}
+                      style={styles.image}
+                    />
+                    <span style={styles.prix}>${p.prix}</span>
+
+                    <button
+                      style={{
+                        ...styles.btn,
+                        ...styles.editBtn,
+                        marginRight: "5px",
+                      }}
+                      onClick={() => modifierProduit(p.id)}
+                      onMouseEnter={(e) => (e.target.style.background = "#ffc107")}
+                      onMouseLeave={(e) => (e.target.style.background = "#ffca28")}
+                    >
+                      ✏️ Modifier
+                    </button>
+
+                    <button
+                      style={{
+                        ...styles.btn,
+                        ...styles.deleteBtn,
+                      }}
+                      onClick={() => supprimerProduit(p.id)}
+                      onMouseEnter={(e) => (e.target.style.background = "#c62828")}
+                      onMouseLeave={(e) => (e.target.style.background = "#e53935")}
+                    >
+                      🗑️ Supprimer
+                    </button>
+                  </div>
+
+                  {/* Version mobile */}
+                  <div style={styles.responsiveCard}>
+                    <p><strong>Réf :</strong> {p.reference}</p>
+                    <img
+                      src={p.images?.[0] || "https://via.placeholder.com/80"}
+                      alt={p.reference}
+                      style={styles.image}
+                    />
+                    <p><strong>Prix :</strong> ${p.prix}</p>
+                    <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "8px" }}>
+                      <button
+                        style={{ ...styles.btn, ...styles.editBtn }}
+                        onClick={() => modifierProduit(p.id)}
+                      >
+                        ✏️ Modifier
+                      </button>
+                      <button
+                        style={{ ...styles.btn, ...styles.deleteBtn }}
+                        onClick={() => supprimerProduit(p.id)}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
+                  </div>
+                </React.Fragment>
+              ))
+            ) : (
+              <p style={{ textAlign: "center", marginTop: "20px", color: "#888" }}>
+                Aucun produit trouvé ⚠️
+              </p>
+            )}
           </div>
-
-          {/* Produits */}
-          {produitsFiltres.length > 0 ? (
-            produitsFiltres.map((p) => (
-              <div key={p.id} style={styles.row}>
-                <span style={styles.reference}>{p.reference || "N/A"}</span>
-                <img
-                  src={p.images?.[0] || "https://via.placeholder.com/80"}
-                  alt={p.reference}
-                  style={styles.image}
-                />
-                <span style={styles.prix}>${p.prix}</span>
-
-                <button
-                  style={{ ...styles.btn, ...styles.editBtn }}
-                  onClick={() => modifierProduit(p.id)}
-                >
-                  ✏️ Modifier
-                </button>
-
-                <button
-                  style={{ ...styles.btn, ...styles.deleteBtn }}
-                  onClick={() => supprimerProduit(p.id)}
-                >
-                  🗑️ Supprimer
-                </button>
-              </div>
-            ))
-          ) : (
-            <p style={{ textAlign: "center", marginTop: "20px", color: "#888" }}>
-              Aucun produit trouvé ⚠️
-            </p>
-          )}
         </>
       )}
     </div>

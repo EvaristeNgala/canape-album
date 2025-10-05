@@ -5,6 +5,7 @@ import Admin from "./pages/Admin";
 import Album from "./pages/Album";
 import AlbumPublic from "./pages/AlbumPublic";
 import ListeProduits from "./pages/ListeProduits";
+import EditProduit from "./pages/EditProduit";
 
 // Menu conditionnel avec styles
 function NavBar() {
@@ -93,6 +94,7 @@ function App() {
           <Route path="/album" element={<Album />} />
           <Route path="/listeproduit" element={<ListeProduits />} />
           <Route path="/album-public" element={<AlbumPublic />} /> {/* Page publique */}
+          <Route path="/edit-produit/:id" element={<EditProduit />} />
           <Route
             path="/"
             element={
