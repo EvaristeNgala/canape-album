@@ -70,7 +70,7 @@ export default function AlbumPublic() {
       .ap-sub-btn { padding:6px 12px; border-radius:12px; border:1px solid #e0e0e0; background:#fff; cursor:pointer; white-space:nowrap; }
       .ap-sub-btn.active { background:#e6ffed; border-color:#28a745; font-weight:600; }
       .produits-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:12px; align-items:start; }
-      .produit-card { background:#fff; border-radius:10px; overflow:hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.06); cursor:pointer; display:flex; flex-direction:column; }
+      .produit-card { background:#fff; border-radius:10px 10px 0 0 ; overflow:hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.06); cursor:pointer; display:flex; flex-direction:column; }
       .produit-image-wrap { width:100%; aspect-ratio: 4 / 3; overflow:hidden; background:#f7f7f7; }
       .produit-image-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
       .produit-info { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; font-size:13px; }
@@ -89,7 +89,7 @@ export default function AlbumPublic() {
       .ap-btn.order { background:#25D366; color:#fff; }
       /* responsive: mobile 2 columns and reduced gaps/margins */
       @media (max-width: 700px) {
-        .produits-grid { grid-template-columns: repeat(2, 1fr); gap:8px; }
+        .produits-grid { grid-template-columns: repeat(2, 1fr); gap:4px; }
         .ap-categories-wrap { padding:8px 6px; gap:6px; }
         .ap-sub-wrap { padding: 8px 6px; margin-top:6px; }
         .ap-popup-main-img { height:220px; }
