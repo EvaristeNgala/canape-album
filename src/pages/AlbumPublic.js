@@ -13,20 +13,21 @@ export default function AlbumPublic() {
   const [adminWhatsapp, setAdminWhatsapp] = useState("");
   const [mainImageIndex, setMainImageIndex] = useState(0);
 
+  // --- fetch produits + categories + whatsapp admin
   useEffect(() => {
     const fetchProduits = async () => {
       try {
         const q = query(collection(db, "produits"), orderBy("createdAt", "desc"));
         const snapshot = await getDocs(q);
         const produitsData = [];
-        snapshot.forEach((doc) => produitsData.push({ id: doc.id, ...doc.data() }));
+        snapshot.forEach((d) => produitsData.push({ id: d.id, ...d.data() }));
         setProduits(produitsData);
 
-        const uniqueCats = [...new Set(produitsData.map((p) => p.categorie))];
+        const uniqueCats = [...new Set(produitsData.map((p) => p.categorie).filter(Boolean))];
         setCategories(uniqueCats);
 
         const adminDoc = await getDoc(doc(db, "settings", "admin"));
-        if (adminDoc.exists()) setAdminWhatsapp(adminDoc.data().whatsapp);
+        if (adminDoc.exists()) setAdminWhatsapp(adminDoc.data().whatsapp || "");
 
         setLoading(false);
       } catch (err) {
@@ -37,271 +38,174 @@ export default function AlbumPublic() {
     fetchProduits();
   }, []);
 
+  // sous-cats calculées à partir de la sélection de catégorie
   const sousCategories = selectedCategorie
-    ? [...new Set(produits.filter(p => p.categorie === selectedCategorie).map(p => p.sousCategorie))]
+    ? [...new Set(produits.filter(p => p.categorie === selectedCategorie).map(p => p.sousCategorie).filter(Boolean))]
     : [];
 
+  // filtrage
   const filteredProduits = produits.filter(p => {
     const matchCat = !selectedCategorie || p.categorie === selectedCategorie;
     const matchSub = !selectedSousCategorie || p.sousCategorie === selectedSousCategorie;
     return matchCat && matchSub;
   });
 
+  // ouvrir WhatsApp pour commander
   const handleWhatsapp = (produit) => {
-    const message = `Bonjour, je souhaite commander : ${produit.reference || ""} - ${produit.categorie} - ${produit.sousCategorie}, prix ${produit.prix}$`;
-    const phoneNumber = adminWhatsapp.replace(/\D/g, '');
+    const message = `Bonjour, je souhaite commander : ${produit.reference || ""} - ${produit.categorie || ""} - ${produit.sousCategorie || ""}, prix ${produit.prix || ""}$`;
+    const phoneNumber = (adminWhatsapp || "").replace(/\D/g, "");
+    if (!phoneNumber) return alert("Numéro admin WhatsApp non configuré.");
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
-  const styles = {
-    container: { 
-      maxWidth: "1000px",
-      marginRight:"-10px",
-      marginLeft:"-10px",
-      fontFamily: "Arial, sans-serif", 
-      color: "#333" 
-    },
-    categoryBtn: { 
-      padding: "8px 14px", 
-      borderRadius: "15px", 
-      border: "1px solid #ccc", 
-      cursor: "pointer", 
-      background: "#fff", 
-      transition: "all 0.2s", 
-      fontSize: "14px" 
-    },
-    categoryBtnActive: { 
-      borderColor: "#007bff", 
-      fontWeight: "600", 
-      background: "#e7f0ff" 
-    },
-    subCategoryBtn: { 
-      padding: "6px 12px", 
-      borderRadius: "15px", 
-      border: "1px solid #ccc", 
-      cursor: "pointer", 
-      background: "#fff", 
-      fontSize: "13px", 
-      transition: "all 0.2s" 
-    },
-    subCategoryBtnActive: { 
-      borderColor: "#28a745", 
-      fontWeight: "600", 
-      background: "#e6ffed" 
-    },
-    grid: { 
-      display: "grid", 
-      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", 
-      gap: "5px", 
-      justifyContent: "center",
-      marginTop: "10px",
-    },
-    card: { 
-      display: "flex", 
-      flexDirection: "column", 
-      borderRadius: "10px 10px 0 0 ", 
-      overflow: "hidden", 
-      background: "#fff", 
-      boxShadow: "0 4px 10px rgba(0,0,0,0.08)", 
-      cursor: "pointer", 
-      transition: "transform 0.2s",
-      maxWidth: "220px",
-      margin: "0 auto"
-    },
-    image: { width: "100%", height: "140px", objectFit: "cover" },
-    infoRow: { display: "flex", justifyContent: "space-between", padding: "8px", alignItems: "center" },
-    label: { fontSize: "12px", fontWeight: "600", color: "#4b4a4aff" },
-    prix: { fontSize: "14px", fontWeight: "bold", color: "#007bff" },
-    popup: { position: "fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,0.6)", display:"flex", justifyContent:"center", alignItems:"center", zIndex:1000 },
-    popupContent: { background:"#fff", padding:"15px", borderRadius:"12px", maxWidth:"450px", width:"90%", maxHeight:"80vh", overflowY:"auto" },
-    popupImage: { width:"100%", height:"200px", objectFit:"cover", borderRadius:"12px", marginBottom:"10px" },
-    popupSlider: { display:"flex", overflowX:"auto", gap:"8px", marginBottom:"10px", paddingBottom:"5px" },
-    popupSliderImage: { width:"80px", height:"50px", objectFit:"cover", borderRadius:"6px", cursor:"pointer", border:"2px solid transparent" },
-    popupSliderImageActive: { border:"2px solid #007bff" },
-    popupButton: { padding:"8px 12px", borderRadius:"6px", border:"none", cursor:"pointer", marginRight:"8px", fontWeight:"600" },
-    closeBtn: { background:"#ccc", color:"#333" },
-    orderBtn: { background:"#25D366", color:"#fff" },
-  };
+  // centrage / espacement / styles et responsive via injection CSS pour garder JSX propre
+  useEffect(() => {
+    const css = `
+      /* AlbumPublic custom styles */
+      .ap-root { max-width:1000px; margin: 0 auto; padding: 8px; box-sizing: border-box; font-family: Arial, sans-serif; color:#333; }
+      .ap-categories-wrap { position: sticky; top: 0; left: 0; right: 0; background:#fff; z-index:1200; padding:10px 8px; display:flex; gap:8px; align-items:center; overflow-x:auto; border-bottom: 1px solid rgba(0,0,0,0.06); }
+      .ap-cat-btn { padding:8px 14px; border-radius:14px; border:1px solid #d1d5db; background:#fff; cursor:pointer; font-size:14px; white-space:nowrap; }
+      .ap-cat-btn.active { background:#e7f0ff; border-color:#007bff; font-weight:600; }
+      .ap-sub-wrap { margin: 8px 0 0 0; padding: 8px; overflow-x:auto; display:flex; gap:8px; align-items:center; border-bottom: 1px solid rgba(0,0,0,0.04); }
+      .ap-sub-btn { padding:6px 12px; border-radius:12px; border:1px solid #e0e0e0; background:#fff; cursor:pointer; white-space:nowrap; }
+      .ap-sub-btn.active { background:#e6ffed; border-color:#28a745; font-weight:600; }
+      .produits-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:12px; align-items:start; }
+      .produit-card { background:#fff; border-radius:10px; overflow:hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.06); cursor:pointer; display:flex; flex-direction:column; }
+      .produit-image-wrap { width:100%; aspect-ratio: 4 / 3; overflow:hidden; background:#f7f7f7; }
+      .produit-image-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
+      .produit-info { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; font-size:13px; }
+      .produit-label { font-weight:600; color:#333; }
+      .produit-prix { font-weight:700; color:#007bff; }
+      /* popup */
+      .ap-popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; justify-content:center; align-items:center; z-index:1500; padding:12px; }
+      .ap-popup { background:#fff; border-radius:12px; max-width:520px; width:100%; max-height:92vh; overflow:auto; padding:14px; box-sizing:border-box; }
+      .ap-popup-main-img { width:100%; height:300px; object-fit:cover; border-radius:10px; margin-bottom:10px; }
+      .ap-popup-slider { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:10px; }
+      .ap-popup-slider img { width:80px; height:50px; object-fit:cover; border-radius:6px; cursor:pointer; border:2px solid transparent; }
+      .ap-popup-slider img.active { border-color:#007bff; }
+      .ap-popup-controls { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+      .ap-btn { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+      .ap-btn.cancel { background:#ccc; color:#222; }
+      .ap-btn.order { background:#25D366; color:#fff; }
+      /* responsive: mobile 2 columns and reduced gaps/margins */
+      @media (max-width: 700px) {
+        .produits-grid { grid-template-columns: repeat(2, 1fr); gap:8px; }
+        .ap-categories-wrap { padding:8px 6px; gap:6px; }
+        .ap-sub-wrap { padding: 8px 6px; margin-top:6px; }
+        .ap-popup-main-img { height:220px; }
+      }
+    `;
+    const styleEl = document.createElement("style");
+    styleEl.setAttribute("data-ap-styles", "true");
+    styleEl.textContent = css;
+    document.head.appendChild(styleEl);
+    return () => {
+      const el = document.querySelector('style[data-ap-styles="true"]');
+      if (el) el.remove();
+    };
+  }, []);
 
+  // reset main image index when popup produit change
   useEffect(() => {
     if (popupProduit) setMainImageIndex(0);
   }, [popupProduit]);
 
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.innerHTML = `
-      @media (max-width: 700px) {
-        .produits-grid {
-          grid-template-columns: repeat(2, 1fr) !important;
-          gap: 8px !important;
-        }
-        .produits-grid .card {
-          max-width: 100% !important;
-        }
-        body {
-          margin: 0;
-          padding: 0;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
-
   return (
-    <div style={styles.container}>
+    <div className="ap-root">
       {loading ? (
-        <p style={{ textAlign: "center" }}>Chargement...</p>
+        <p style={{ textAlign: "center", padding: 12 }}>Chargement...</p>
       ) : (
         <>
-          {/* Bloc catégories fixe */}
-          <div
-            style={{
-              position: "sticky",
-              top: 0,
-              left: 0,
-              right: 0,
-              background: "#fff",
-              zIndex: 100,
-              padding: "8px 10px",
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "10px",
-              alignItems: "center",
-            }}
-          >
-            {/* Bouton pour toutes les catégories */}
-            <div
-              style={{
-                ...styles.categoryBtn,
-                ...(selectedCategorie === null ? styles.categoryBtnActive : {}),
-              }}
-              onClick={() => {
-                setSelectedCategorie(null);
-                setSelectedSousCategorie(null);
-              }}
+          {/* catégories sticky (plein largeur, alignées à gauche). "Toutes" réinitialise. */}
+          <div className="ap-categories-wrap" role="toolbar" aria-label="Catégories">
+            <button
+              className={`ap-cat-btn ${selectedCategorie === null ? "active" : ""}`}
+              onClick={() => { setSelectedCategorie(null); setSelectedSousCategorie(null); }}
             >
               Toutes
-            </div>
+            </button>
 
             {categories.map((cat, i) => (
-              <div
+              <button
                 key={i}
-                style={{
-                  ...styles.categoryBtn,
-                  ...(selectedCategorie === cat ? styles.categoryBtnActive : {}),
+                className={`ap-cat-btn ${selectedCategorie === cat ? "active" : ""}`}
+                onClick={() => {
+                  // toggle catégorie
+                  setSelectedCategorie(prev => prev === cat ? null : cat);
+                  setSelectedSousCategorie(null);
                 }}
-                onClick={() => setSelectedCategorie(prev => (prev === cat ? null : cat))}
               >
                 {cat}
-              </div>
+              </button>
             ))}
           </div>
 
-          {/* Sous-catégories scrollable */}
+          {/* sous catégories : séparées, scrollables, non sticky */}
           {selectedCategorie && sousCategories.length > 0 && (
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "8px",
-                margin: "10px 0",
-                padding: "0 10px",
-                overflowX: "auto",
-              }}
-            >
+            <div className="ap-sub-wrap" aria-label="Sous catégories">
               {sousCategories.map((sub, i) => (
-                <div
+                <button
                   key={i}
-                  style={{
-                    ...styles.subCategoryBtn,
-                    ...(selectedSousCategorie === sub
-                      ? styles.subCategoryBtnActive
-                      : {}),
-                  }}
-                  onClick={() =>
-                    setSelectedSousCategorie(prev => (prev === sub ? null : sub))
-                  }
+                  className={`ap-sub-btn ${selectedSousCategorie === sub ? "active" : ""}`}
+                  onClick={() => setSelectedSousCategorie(prev => prev === sub ? null : sub)}
                 >
                   {sub}
-                </div>
+                </button>
               ))}
             </div>
           )}
 
-          {/* Produits */}
-          <div className="produits-grid" style={styles.grid}>
-            {filteredProduits.map((p) => (
-              <div
-                key={p.id}
-                className="card"
-                style={styles.card}
-                onClick={() => setPopupProduit(p)}
-              >
-                <img
-                  src={p.images?.[0] || "https://via.placeholder.com/300x200"}
-                  alt={p.sousCategorie}
-                  style={styles.image}
-                />
-                <div style={styles.infoRow}>
-                  <span style={styles.label}>
-                    {p.sousCategorie || "Sans sous-catégorie"}
-                  </span>
-                  <span style={styles.prix}>${p.prix}</span>
-                </div>
-              </div>
-            ))}
+          {/* grille produits */}
+          <div className="produits-grid">
+            {filteredProduits.map((p) => {
+              // ensure images array exists
+              const mainImg = (p.images && p.images.length && p.images[0]) ? p.images[0] : "https://via.placeholder.com/300x225";
+              return (
+                <article key={p.id} className="produit-card" onClick={() => setPopupProduit(p)} aria-label={`Produit ${p.reference || ""}`}>
+                  <div className="produit-image-wrap">
+                    <img src={mainImg} alt={p.sousCategorie || p.reference || "Produit"} loading="lazy" />
+                  </div>
+                  <div className="produit-info">
+                    <span className="produit-label">{p.sousCategorie || "Sans sous-catégorie"}</span>
+                    <span className="produit-prix">${p.prix}</span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
 
-          {/* Popup produit */}
+          {/* popup produit */}
           {popupProduit && (
-            <div style={styles.popup} onClick={() => setPopupProduit(null)}>
-              <div
-                style={styles.popupContent}
-                onClick={(e) => e.stopPropagation()}
-              >
+            <div className="ap-popup-overlay" onClick={() => setPopupProduit(null)}>
+              <div className="ap-popup" onClick={(e) => e.stopPropagation()}>
+                {/* image principale */}
                 <img
-                  src={popupProduit.images[mainImageIndex]}
+                  className="ap-popup-main-img"
+                  src={popupProduit.images && popupProduit.images[mainImageIndex] ? popupProduit.images[mainImageIndex] : "https://via.placeholder.com/600x400"}
                   alt=""
-                  style={styles.popupImage}
                 />
-                <div style={styles.popupSlider}>
-                  {popupProduit.images?.map((img, i) => (
+                {/* slider miniatures */}
+                <div className="ap-popup-slider">
+                  {(popupProduit.images || []).map((img, i) => (
                     <img
                       key={i}
                       src={img}
-                      alt=""
-                      style={{
-                        ...styles.popupSliderImage,
-                        ...(i === mainImageIndex
-                          ? styles.popupSliderImageActive
-                          : {}),
-                      }}
+                      className={i === mainImageIndex ? "active" : ""}
                       onClick={() => setMainImageIndex(i)}
+                      alt={`mini-${i}`}
+                      loading="lazy"
                     />
                   ))}
                 </div>
-                <p>{popupProduit.description}</p>
-                <p style={{ fontWeight: "bold" }}>Prix: ${popupProduit.prix}</p>
-                <div
-                  style={{
-                    marginTop: "10px",
-                    display: "flex",
-                    justifyContent: "flex-end",
-                  }}
-                >
-                  <button
-                    onClick={() => setPopupProduit(null)}
-                    style={{ ...styles.popupButton, ...styles.closeBtn }}
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    onClick={() => handleWhatsapp(popupProduit)}
-                    style={{ ...styles.popupButton, ...styles.orderBtn }}
-                  >
-                    Commander
-                  </button>
+
+                <div>
+                  <p style={{ marginTop: 6 }}>{popupProduit.description}</p>
+                  <p style={{ fontWeight: 700 }}>Prix: ${popupProduit.prix}</p>
+                </div>
+
+                <div className="ap-popup-controls">
+                  <button className="ap-btn cancel" onClick={() => setPopupProduit(null)}>Annuler</button>
+                  <button className="ap-btn order" onClick={() => handleWhatsapp(popupProduit)}>Commander</button>
                 </div>
               </div>
             </div>
