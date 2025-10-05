@@ -129,7 +129,7 @@ export default function EditProduit() {
       boxSizing: "border-box",
     },
     input: {
-      width: "95%",
+      width: "100%",
       padding: "10px",
       margin: "10px 0",
       border: "1px solid #ccc",
@@ -175,8 +175,8 @@ export default function EditProduit() {
     },
     removeButton: {
       position: "absolute",
-      top: "5px",
-      right: "5px",
+      top: "-8px",
+      right: "-8px",
       background: "#d9534f",
       border: "none",
       borderRadius: "50%",
