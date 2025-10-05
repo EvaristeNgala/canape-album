@@ -9,11 +9,16 @@ export default function Admin() {
   const [tempWhatsapp, setTempWhatsapp] = useState("");
 
   const albumPublicUrl = `${window.location.origin}/album-public`;
-  const [copied, setCopied] = useState(false); // <-- Pour feedback du bouton
+  const [copied, setCopied] = useState(false);
 
   const [prix, setPrix] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([null, null, null]);
+
+  // 🔹 Nouveaux champs fournisseur
+  const [fournisseur, setFournisseur] = useState("");
+  const [adresseFournisseur, setAdresseFournisseur] = useState("");
+  const [numeroFournisseur, setNumeroFournisseur] = useState("");
 
   const [categories, setCategories] = useState([]);
   const [selectedCategorie, setSelectedCategorie] = useState("");
@@ -119,18 +124,26 @@ export default function Admin() {
       });
     }
 
+    // 🔹 Sauvegarde dans Firestore avec les infos fournisseur
     await addDoc(collection(db, "produits"), {
       reference: referenceProduit,
       categorie: selectedCategorie,
       sousCategorie: selectedSubCategorie,
       prix: parseFloat(prix),
       description,
+      fournisseur,
+      adresseFournisseur,
+      numeroFournisseur,
       images: uploadedImages,
       createdAt: new Date(),
     });
 
+    // Reset du formulaire
     setPrix("");
     setDescription("");
+    setFournisseur("");
+    setAdresseFournisseur("");
+    setNumeroFournisseur("");
     setImages([null, null, null]);
     setSelectedCategorie("");
     setSelectedSubCategorie("");
@@ -155,7 +168,12 @@ export default function Admin() {
       cursor: "pointer",
       marginTop: "10px",
     },
-    input: { padding: "10px", border: "1px solid #ccc", borderRadius: "8px", width: "100%" },
+    input: {
+      padding: "10px",
+      border: "1px solid #ccc",
+      borderRadius: "8px",
+      width: "100%",
+    },
     smallButton: {
       padding: "10px",
       borderRadius: "8px",
@@ -164,7 +182,12 @@ export default function Admin() {
       border: "none",
       cursor: "pointer",
     },
-    imagePreview: { width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" },
+    imagePreview: {
+      width: "100px",
+      height: "100px",
+      objectFit: "cover",
+      borderRadius: "8px",
+    },
     linkBox: {
       marginTop: "15px",
       padding: "10px",
@@ -175,14 +198,14 @@ export default function Admin() {
       gap: "10px",
       wordBreak: "break-all",
     },
-    copyButton: copied => ({
+    copyButton: (copied) => ({
       padding: "8px 12px",
       borderRadius: "8px",
       background: copied ? "#28a745" : "#007bff",
       color: "#fff",
       border: "none",
       cursor: "pointer",
-      transition: "background 0.3s"
+      transition: "background 0.3s",
     }),
   };
 
@@ -199,10 +222,11 @@ export default function Admin() {
               setEditingWhatsapp(true);
             }}
           >
-            {whatsappAdmin ? `Modifier WhatsApp (${whatsappAdmin})` : "Saisir numéro WhatsApp"}
+            {whatsappAdmin
+              ? `Modifier WhatsApp (${whatsappAdmin})`
+              : "Saisir numéro WhatsApp"}
           </button>
 
-          {/* Lien AlbumPublic avec bouton copier */}
           <div style={styles.linkBox}>
             <p style={{ margin: 0, flex: 1 }}>{albumPublicUrl}</p>
             <button
@@ -210,10 +234,10 @@ export default function Admin() {
               onClick={() => {
                 navigator.clipboard.writeText(albumPublicUrl);
                 setCopied(true);
-                setTimeout(() => setCopied(false), 1000); // <-- Revenir à la couleur normale après 1s
+                setTimeout(() => setCopied(false), 1000);
               }}
             >
-              📋 Copier
+              Copier
             </button>
           </div>
         </>
@@ -226,7 +250,9 @@ export default function Admin() {
             onChange={(e) => setTempWhatsapp(e.target.value)}
             style={styles.input}
           />
-          <button style={styles.button} onClick={handleSaveWhatsapp}>💾 Valider</button>
+          <button style={styles.button} onClick={handleSaveWhatsapp}>
+            Valider
+          </button>
           <button
             style={{ ...styles.button, background: "#6c757d" }}
             onClick={() => setEditingWhatsapp(false)}
@@ -237,10 +263,7 @@ export default function Admin() {
       )}
 
       <h2 style={{ textAlign: "center", marginTop: "30px" }}>Ajouter un produit</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-      >
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <input
           type="number"
           placeholder="Prix"
@@ -249,6 +272,7 @@ export default function Admin() {
           required
           style={styles.input}
         />
+
         <textarea
           placeholder="Description"
           value={description}
@@ -256,6 +280,32 @@ export default function Admin() {
           required
           style={{ ...styles.input, minHeight: "80px" }}
         />
+
+        {/* 🔹 Champs fournisseur */}
+        <input
+          type="text"
+          placeholder="Nom du fournisseur"
+          value={fournisseur}
+          onChange={(e) => setFournisseur(e.target.value)}
+          style={styles.input}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Adresse du fournisseur"
+          value={adresseFournisseur}
+          onChange={(e) => setAdresseFournisseur(e.target.value)}
+          style={styles.input}
+        />
+        <input
+          type="text"
+          placeholder="Numéro du fournisseur"
+          value={numeroFournisseur}
+          onChange={(e) => setNumeroFournisseur(e.target.value)}
+          style={styles.input}
+        />
+
+        {/* Catégorie & sous-catégorie */}
         <select
           value={selectedCategorie}
           onChange={(e) => setSelectedCategorie(e.target.value)}
@@ -269,6 +319,7 @@ export default function Admin() {
           ))}
           <option value="new">+ Ajouter nouvelle catégorie</option>
         </select>
+
         {selectedCategorie === "new" && (
           <div style={{ display: "flex", gap: "8px" }}>
             <input
@@ -283,6 +334,7 @@ export default function Admin() {
             </button>
           </div>
         )}
+
         <select
           value={selectedSubCategorie}
           onChange={(e) => setSelectedSubCategorie(e.target.value)}
@@ -296,6 +348,7 @@ export default function Admin() {
           ))}
           <option value="new">+ Ajouter nouvelle sous-catégorie</option>
         </select>
+
         {selectedSubCategorie === "new" && (
           <div style={{ display: "flex", gap: "8px" }}>
             <input
@@ -310,12 +363,23 @@ export default function Admin() {
             </button>
           </div>
         )}
+
         {[0, 1, 2].map((i) => (
           <input key={i} type="file" accept="image/*" onChange={(e) => handleImageChange(e, i)} />
         ))}
+
         {images.map(
-          (img, i) => img && <img key={i} src={URL.createObjectURL(img)} alt="preview" style={styles.imagePreview} />
+          (img, i) =>
+            img && (
+              <img
+                key={i}
+                src={URL.createObjectURL(img)}
+                alt="preview"
+                style={styles.imagePreview}
+              />
+            )
         )}
+
         <button type="submit" disabled={uploading} style={styles.button}>
           {uploading ? "Envoi en cours..." : "Ajouter le produit"}
         </button>
