@@ -55,7 +55,6 @@ export default function AlbumPublic() {
 
   const styles = {
     container: { 
-      maxWidth: "1000px", 
       padding: "-15px", 
       fontFamily: "Arial, sans-serif", 
       color: "#333" 
