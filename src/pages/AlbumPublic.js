@@ -181,7 +181,7 @@ export default function AlbumPublic() {
                 setSelectedSousCategorie(null);
               }}
             >
-              🏷️ Toutes les catégories
+              Toutes
             </div>
 
             {categories.map((cat, i) => (
