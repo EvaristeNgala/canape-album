@@ -89,7 +89,7 @@ export default function AlbumPublic() {
       .ap-btn.order { background:#25D366; color:#fff; }
       /* responsive: mobile 2 columns and reduced gaps/margins */
       @media (max-width: 700px) {
-        .produits-grid { grid-template-columns: repeat(2, 1fr); gap:4px; }
+        .produits-grid { grid-template-columns: repeat(2, 1fr); gap:6px; }
         .ap-categories-wrap { padding:8px 6px; gap:6px; }
         .ap-sub-wrap { padding: 8px 6px; margin-top:6px; }
         .ap-popup-main-img { height:220px; }
