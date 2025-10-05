@@ -9,7 +9,7 @@ export default function ListeProduits() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [maxPrix, setMaxPrix] = useState("");
-  const [selectedProduit, setSelectedProduit] = useState(null); // produit à afficher dans la fenêtre modale
+  const [selectedProduit, setSelectedProduit] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +29,6 @@ export default function ListeProduits() {
     fetchProduits();
   }, []);
 
-  // Supprimer un produit
   const supprimerProduit = async (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer ce produit ?")) {
       try {
@@ -82,6 +81,7 @@ export default function ListeProduits() {
       padding: "10px 0",
       borderBottom: "1px solid #eee",
       textAlign: "center",
+      gap: "5px"
     },
     image: {
       width: "80px",
@@ -102,35 +102,59 @@ export default function ListeProduits() {
     editBtn: { background: "#ffca28", color: "#333" },
     deleteBtn: { background: "#e53935", color: "#fff" },
     viewBtn: { background: "#4caf50", color: "#fff" },
+
+    // --- MODAL ---
     modalOverlay: {
       position: "fixed",
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      background: "rgba(0,0,0,0.5)",
+      background: "rgba(0,0,0,0.6)",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
       zIndex: 1000,
+      animation: "fadeIn 0.3s ease",
     },
     modalContent: {
       background: "#fff",
-      padding: "20px",
-      borderRadius: "10px",
+      padding: "25px 20px",
+      borderRadius: "12px",
       width: "90%",
       maxWidth: "400px",
       textAlign: "center",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+      transform: "scale(1)",
+      animation: "popIn 0.3s ease",
+    },
+    modalImage: {
+      width: "100%",
+      maxWidth: "180px",
+      height: "180px",
+      objectFit: "cover",
+      borderRadius: "12px",
+      marginBottom: "15px",
       boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+    },
+    infoText: {
+      fontSize: "15px",
+      marginBottom: "8px",
+      color: "#333",
+    },
+    strong: {
+      color: "#555",
+      fontWeight: "bold",
     },
     closeBtn: {
       marginTop: "15px",
-      background: "#999",
+      background: "#777",
       color: "#fff",
-      padding: "8px 12px",
+      padding: "8px 14px",
       borderRadius: "6px",
       border: "none",
       cursor: "pointer",
+      transition: "0.3s",
     },
     callBtn: {
       margin: "8px 5px",
@@ -140,6 +164,8 @@ export default function ListeProduits() {
       borderRadius: "6px",
       border: "none",
       cursor: "pointer",
+      fontWeight: "600",
+      transition: "0.3s",
     },
     whatsappBtn: {
       margin: "8px 5px",
@@ -149,6 +175,8 @@ export default function ListeProduits() {
       borderRadius: "6px",
       border: "none",
       cursor: "pointer",
+      fontWeight: "600",
+      transition: "0.3s",
     },
   };
 
@@ -205,7 +233,11 @@ export default function ListeProduits() {
               produitsFiltres.map((p) => (
                 <div key={p.id} style={styles.row}>
                   <span>{p.reference || "N/A"}</span>
-                  <img src={p.images?.[0] || "https://via.placeholder.com/80"} alt={p.reference} style={styles.image} />
+                  <img
+                    src={p.images?.[0] || "https://via.placeholder.com/80"}
+                    alt={p.reference}
+                    style={styles.image}
+                  />
                   <span style={styles.prix}>${p.prix}</span>
 
                   <button
@@ -239,34 +271,52 @@ export default function ListeProduits() {
         </>
       )}
 
-      {/* Fenêtre modale d'informations */}
+      {/* Fenêtre modale améliorée */}
       {selectedProduit && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent}>
-            <h3>Informations du produit</h3>
-            <p><strong>Référence :</strong> {selectedProduit.reference}</p>
-            <p><strong>Fournisseur :</strong> {selectedProduit.fournisseur || "Non défini"}</p>
-            <p><strong>Adresse :</strong> {selectedProduit.adresseFournisseur || "Non définie"}</p>
-            <p><strong>Numéro :</strong> {selectedProduit.numeroFournisseur || "Non défini"}</p>
+            <img
+              src={selectedProduit.images?.[0] || "https://via.placeholder.com/150"}
+              alt={selectedProduit.reference}
+              style={styles.modalImage}
+            />
+            <h3 style={{ marginBottom: "10px", color: "#007bff" }}>📦 Informations du produit</h3>
+            <p style={styles.infoText}>
+              <span style={styles.strong}>Référence :</span> {selectedProduit.reference}
+            </p>
+            <p style={styles.infoText}>
+              <span style={styles.strong}>Fournisseur :</span> {selectedProduit.fournisseur || "Non défini"}
+            </p>
+            <p style={styles.infoText}>
+              <span style={styles.strong}>Adresse :</span> {selectedProduit.adresseFournisseur || "Non définie"}
+            </p>
+            <p style={styles.infoText}>
+              <span style={styles.strong}>Numéro :</span> {selectedProduit.numeroFournisseur || "Non défini"}
+            </p>
 
-            {selectedProduit.numero && (
+            {selectedProduit.numeroFournisseur && (
               <div>
                 <button
                   style={styles.callBtn}
-                  onClick={() => handleAppel(selectedProduit.numero, "normal")}
+                  onClick={() => handleAppel(selectedProduit.numeroFournisseur, "normal")}
                 >
-                  Appel normal
+                  Appel
                 </button>
                 <button
                   style={styles.whatsappBtn}
-                  onClick={() => handleAppel(selectedProduit.numero, "whatsapp")}
+                  onClick={() => handleAppel(selectedProduit.numeroFournisseur, "whatsapp")}
                 >
                   WhatsApp
                 </button>
               </div>
             )}
 
-            <button style={styles.closeBtn} onClick={() => setSelectedProduit(null)}>
+            <button
+              style={styles.closeBtn}
+              onClick={() => setSelectedProduit(null)}
+              onMouseEnter={(e) => (e.target.style.background = "#555")}
+              onMouseLeave={(e) => (e.target.style.background = "#777")}
+            >
               Fermer
             </button>
           </div>
