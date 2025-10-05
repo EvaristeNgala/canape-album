@@ -4,18 +4,16 @@ import { db } from "../firebase";
 import { collection, addDoc, getDocs, setDoc, doc } from "firebase/firestore";
 
 export default function Admin() {
-  // --- Admin WhatsApp ---
   const [whatsappAdmin, setWhatsappAdmin] = useState("");
   const [editingWhatsapp, setEditingWhatsapp] = useState(false);
   const [tempWhatsapp, setTempWhatsapp] = useState("");
 
-  // --- AlbumPublic URL dynamique ---
   const albumPublicUrl = `${window.location.origin}/album-public`;
+  const [copied, setCopied] = useState(false); // <-- Pour feedback du bouton
 
-  // --- Formulaire produit ---
   const [prix, setPrix] = useState("");
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState([null, null, null]); // 3 images max
+  const [images, setImages] = useState([null, null, null]);
 
   const [categories, setCategories] = useState([]);
   const [selectedCategorie, setSelectedCategorie] = useState("");
@@ -27,7 +25,6 @@ export default function Admin() {
 
   const [uploading, setUploading] = useState(false);
 
-  // --- Récupérer catégories ---
   useEffect(() => {
     const fetchCategories = async () => {
       const snapshot = await getDocs(collection(db, "categories"));
@@ -37,7 +34,6 @@ export default function Admin() {
     fetchCategories();
   }, []);
 
-  // --- Récupérer sous-catégories ---
   useEffect(() => {
     const fetchSubCategories = async () => {
       if (!selectedCategorie || selectedCategorie === "new") return setSubCategories([]);
@@ -50,7 +46,6 @@ export default function Admin() {
     fetchSubCategories();
   }, [selectedCategorie]);
 
-  // --- Récupérer numéro WhatsApp admin ---
   useEffect(() => {
     const fetchWhatsapp = async () => {
       const docSnap = await getDocs(collection(db, "settings"));
@@ -61,31 +56,25 @@ export default function Admin() {
     fetchWhatsapp();
   }, []);
 
-  // --- Gestion WhatsApp ---
   const handleSaveWhatsapp = async () => {
-    if (!tempWhatsapp.trim()) return alert("Numéro vide !");
-    if (!tempWhatsapp.startsWith("+"))
-      return alert("Le numéro doit inclure le code pays, exemple +243XXXXXXXXX");
+    if (!tempWhatsapp.trim()) return;
+    if (!tempWhatsapp.startsWith("+")) return;
     await setDoc(doc(db, "settings", "admin"), { whatsapp: tempWhatsapp });
     setWhatsappAdmin(tempWhatsapp);
     setEditingWhatsapp(false);
-    alert("Numéro WhatsApp mis à jour !");
   };
 
-  // --- Ajouter catégorie ---
   const handleAddCategorie = async () => {
-    if (!newCategorie.trim()) return alert("Nom de la catégorie vide !");
+    if (!newCategorie.trim()) return;
     await addDoc(collection(db, "categories"), { nom: newCategorie });
     setCategories([...categories, newCategorie]);
     setNewCategorie("");
     setSelectedCategorie("");
   };
 
-  // --- Ajouter sous-catégorie ---
   const handleAddSubCategorie = async () => {
-    if (!selectedCategorie || selectedCategorie === "new")
-      return alert("Sélectionne une catégorie avant !");
-    if (!newSubCategorie.trim()) return alert("Nom sous-catégorie vide !");
+    if (!selectedCategorie || selectedCategorie === "new") return;
+    if (!newSubCategorie.trim()) return;
     await addDoc(
       collection(db, `categories/${selectedCategorie}/subcategories`),
       { nom: newSubCategorie }
@@ -94,26 +83,21 @@ export default function Admin() {
     setNewSubCategorie("");
   };
 
-  // --- Gestion images ---
   const handleImageChange = (e, index) => {
     const newImgs = [...images];
     newImgs[index] = e.target.files[0];
     setImages(newImgs);
   };
 
-  // --- Ajouter produit avec référence automatique ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedCategorie || !selectedSubCategorie)
-      return alert("Sélectionne catégorie et sous-catégorie !");
+    if (!selectedCategorie || !selectedSubCategorie) return;
     setUploading(true);
 
-    // --- Générer la référence produit automatique ---
     const snapshot = await getDocs(collection(db, "produits"));
     const nextNumber = snapshot.docs.length + 1;
     const referenceProduit = `PRO-${nextNumber.toString().padStart(3, "0")}`;
 
-    // --- Upload images ---
     const uploadedImages = [];
     for (let i = 0; i < images.length; i++) {
       if (!images[i]) continue;
@@ -136,7 +120,7 @@ export default function Admin() {
     }
 
     await addDoc(collection(db, "produits"), {
-      reference: referenceProduit, // ✅ Référence auto
+      reference: referenceProduit,
       categorie: selectedCategorie,
       sousCategorie: selectedSubCategorie,
       prix: parseFloat(prix),
@@ -151,7 +135,6 @@ export default function Admin() {
     setSelectedCategorie("");
     setSelectedSubCategorie("");
     setUploading(false);
-    alert(`Produit ajouté ! Référence: ${referenceProduit}`);
   };
 
   const styles = {
@@ -192,14 +175,21 @@ export default function Admin() {
       gap: "10px",
       wordBreak: "break-all",
     },
-    copyButton: { padding: "8px 12px", borderRadius: "8px", background: "#28a745", color: "#fff", border: "none", cursor: "pointer" },
+    copyButton: copied => ({
+      padding: "8px 12px",
+      borderRadius: "8px",
+      background: copied ? "#28a745" : "#007bff",
+      color: "#fff",
+      border: "none",
+      cursor: "pointer",
+      transition: "background 0.3s"
+    }),
   };
 
   return (
     <div style={styles.container}>
       <h2 style={{ textAlign: "center" }}>Paramètres admin</h2>
 
-      {/* WhatsApp */}
       {!editingWhatsapp ? (
         <>
           <button
@@ -216,10 +206,11 @@ export default function Admin() {
           <div style={styles.linkBox}>
             <p style={{ margin: 0, flex: 1 }}>{albumPublicUrl}</p>
             <button
-              style={styles.copyButton}
+              style={styles.copyButton(copied)}
               onClick={() => {
                 navigator.clipboard.writeText(albumPublicUrl);
-                alert("Lien copié !");
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1000); // <-- Revenir à la couleur normale après 1s
               }}
             >
               📋 Copier
@@ -245,7 +236,6 @@ export default function Admin() {
         </>
       )}
 
-      {/* === Formulaire produit === */}
       <h2 style={{ textAlign: "center", marginTop: "30px" }}>Ajouter un produit</h2>
       <form
         onSubmit={handleSubmit}
@@ -266,8 +256,6 @@ export default function Admin() {
           required
           style={{ ...styles.input, minHeight: "80px" }}
         />
-
-        {/* Catégorie */}
         <select
           value={selectedCategorie}
           onChange={(e) => setSelectedCategorie(e.target.value)}
@@ -295,8 +283,6 @@ export default function Admin() {
             </button>
           </div>
         )}
-
-        {/* Sous-catégorie */}
         <select
           value={selectedSubCategorie}
           onChange={(e) => setSelectedSubCategorie(e.target.value)}
@@ -324,15 +310,12 @@ export default function Admin() {
             </button>
           </div>
         )}
-
-        {/* Images */}
         {[0, 1, 2].map((i) => (
           <input key={i} type="file" accept="image/*" onChange={(e) => handleImageChange(e, i)} />
         ))}
         {images.map(
           (img, i) => img && <img key={i} src={URL.createObjectURL(img)} alt="preview" style={styles.imagePreview} />
         )}
-
         <button type="submit" disabled={uploading} style={styles.button}>
           {uploading ? "Envoi en cours..." : "Ajouter le produit"}
         </button>
