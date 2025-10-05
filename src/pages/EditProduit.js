@@ -1,3 +1,4 @@
+// src/pages/EditProduit.jsx
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
@@ -28,7 +29,10 @@ export default function EditProduit() {
           const data = docSnap.data();
           setProduit({
             ...data,
-            images: data.images.length === 3 ? data.images : [...data.images, ...Array(3 - data.images.length).fill("")],
+            images:
+              data.images.length === 3
+                ? data.images
+                : [...data.images, ...Array(3 - data.images.length).fill("")],
           });
         } else {
           alert("Produit non trouvé !");
@@ -115,14 +119,72 @@ export default function EditProduit() {
   if (loading) return <p style={{ textAlign: "center" }}>Chargement...</p>;
 
   const styles = {
-    container: { maxWidth: "600px", margin: "30px auto", padding: "20px", border: "1px solid #ddd", borderRadius: "8px" },
-    input: { width: "100%", padding: "10px", margin: "10px 0", border: "1px solid #ccc", borderRadius: "6px" },
-    textarea: { width: "100%", padding: "10px", margin: "10px 0", border: "1px solid #ccc", borderRadius: "6px", minHeight: "80px" },
-    button: { padding: "12px", borderRadius: "8px", background: "#007bff", color: "#fff", border: "none", cursor: "pointer", fontWeight: "600", marginTop: "10px" },
-    imagePreview: { width: "100px", height: "100px", objectFit: "cover", borderRadius: "8px" },
-    imagesContainer: { display: "flex", gap: "10px", marginBottom: "10px" },
-    imageWrapper: { position: "relative" },
-    removeButton: { position: "absolute", top: "-8px", right: "-8px", background: "#d9534f", border: "none", borderRadius: "50%", color: "#fff", width: "24px", height: "24px", cursor: "pointer" },
+    container: {
+      width: "90%",
+      maxWidth: "600px",
+      margin: "20px auto",
+      padding: "15px",
+      border: "1px solid #ddd",
+      borderRadius: "8px",
+      boxSizing: "border-box",
+    },
+    input: {
+      width: "95%",
+      padding: "10px",
+      margin: "10px 0",
+      border: "1px solid #ccc",
+      borderRadius: "6px",
+      boxSizing: "border-box",
+    },
+    textarea: {
+      width: "100%",
+      padding: "10px",
+      margin: "10px 0",
+      border: "1px solid #ccc",
+      borderRadius: "6px",
+      minHeight: "80px",
+      boxSizing: "border-box",
+    },
+    button: {
+      width: "100%",
+      padding: "12px",
+      borderRadius: "8px",
+      background: "#007bff",
+      color: "#fff",
+      border: "none",
+      cursor: "pointer",
+      fontWeight: "600",
+      marginTop: "10px",
+      boxSizing: "border-box",
+    },
+    imagesContainer: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "10px",
+      marginBottom: "10px",
+    },
+    imageWrapper: {
+      position: "relative",
+      flex: "1 1 100px",
+    },
+    imagePreview: {
+      width: "100px",
+      height: "100px",
+      objectFit: "cover",
+      borderRadius: "8px",
+    },
+    removeButton: {
+      position: "absolute",
+      top: "-8px",
+      right: "-8px",
+      background: "#d9534f",
+      border: "none",
+      borderRadius: "50%",
+      color: "#fff",
+      width: "24px",
+      height: "24px",
+      cursor: "pointer",
+    },
     title: { textAlign: "center", marginBottom: "20px", fontSize: "20px", fontWeight: "700" },
   };
 
@@ -169,15 +231,16 @@ export default function EditProduit() {
 
         {/* Images */}
         <div style={styles.imagesContainer}>
-          {produit.images.map((img, i) =>
-            img ? (
-              <div key={i} style={styles.imageWrapper}>
-                <img src={img} alt={`img${i}`} style={styles.imagePreview} />
-                <button type="button" style={styles.removeButton} onClick={() => removeImage(i)}>
-                  ×
-                </button>
-              </div>
-            ) : null
+          {produit.images.map(
+            (img, i) =>
+              img && (
+                <div key={i} style={styles.imageWrapper}>
+                  <img src={img} alt={`img${i}`} style={styles.imagePreview} />
+                  <button type="button" style={styles.removeButton} onClick={() => removeImage(i)}>
+                    ×
+                  </button>
+                </div>
+              )
           )}
         </div>
 
