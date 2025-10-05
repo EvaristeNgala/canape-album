@@ -246,8 +246,8 @@ export default function ListeProduits() {
             <h3>Informations du produit</h3>
             <p><strong>Référence :</strong> {selectedProduit.reference}</p>
             <p><strong>Fournisseur :</strong> {selectedProduit.fournisseur || "Non défini"}</p>
-            <p><strong>Adresse :</strong> {selectedProduit.adresse || "Non définie"}</p>
-            <p><strong>Numéro :</strong> {selectedProduit.numero || "Non défini"}</p>
+            <p><strong>Adresse :</strong> {selectedProduit.adresseFournisseur || "Non définie"}</p>
+            <p><strong>Numéro :</strong> {selectedProduit.numeroFournisseur || "Non défini"}</p>
 
             {selectedProduit.numero && (
               <div>
